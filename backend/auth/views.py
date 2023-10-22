@@ -4,13 +4,14 @@ from rest_framework import status
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 
 
 class Login(APIView):
     def get(self, request):
         if not request.user.is_authenticated:
             return render(request, 'login.html')
-        return HttpResponseRedirect(redirect_to="/auth/logout")
+        return HttpResponseRedirect(redirect_to="/recommender")
 
     def post(self, request):
         user = authenticate(username=request.data["username"], password=request.data["password"])
@@ -18,18 +19,21 @@ class Login(APIView):
             return HttpResponse(f"User does not exist", content_type="text/plain")
         else:
             login(request, user)
-            return HttpResponse(f"User exists", content_type="text/plain")
+            return HttpResponseRedirect(redirect_to="/recommender")
 
 
 class Register(APIView):
+    def get(self, request):
+        return render(request, 'register.html')
+
     def post(self, request):
-        return HttpResponse("Registr post")
+        user = User.objects.create_user(username=request.data["username"],
+                                        password=request.data["password"])
+        login(request, user)
+        return HttpResponseRedirect(redirect_to="/recommender")
 
 
 class Logout(APIView):
     def get(self, request):
-        return render(request, 'logout.html')
-
-    def post(self, request):
         logout(request)
-        return HttpResponse("Logout")
+        return HttpResponseRedirect(redirect_to="/auth/login")

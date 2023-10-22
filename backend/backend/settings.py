@@ -37,11 +37,22 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
     "django.contrib.sites",
+    "rest_framework",
+    "tailwind",
+    "backend",
+    "recommender",
+    "theme",
+    "django_browser_reload",
 ]
 
 SITE_ID = 1
+
+TAILWIND_APP_NAME = "theme"
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -51,6 +62,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -140,3 +152,5 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = "auth.User"
+
+NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"

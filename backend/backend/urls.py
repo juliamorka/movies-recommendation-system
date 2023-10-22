@@ -22,5 +22,6 @@ urlpatterns = [
     # path("", RedirectView.as_view(url="recommender/")),
     path("admin/", admin.site.urls),
     path("recommender/", include("recommender.urls")),
-    path("auth/", include("auth.urls"))
+    path("auth/", include("auth.urls")),
+    path("__reload__/", include("django_browser_reload.urls")),
 ]
