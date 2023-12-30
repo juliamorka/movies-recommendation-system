@@ -11,7 +11,7 @@ class Login(APIView):
     def get(self, request):
         if not request.user.is_authenticated:
             return render(request, 'login.html')
-        return HttpResponseRedirect(redirect_to="/recommender")
+        return HttpResponseRedirect(redirect_to="/films")
 
     def post(self, request):
         user = authenticate(username=request.data["username"], password=request.data["password"])
@@ -19,7 +19,7 @@ class Login(APIView):
             return HttpResponse(f"User does not exist", content_type="text/plain")
         else:
             login(request, user)
-            return HttpResponseRedirect(redirect_to="/recommender")
+            return HttpResponseRedirect(redirect_to="/films")
 
 
 class Register(APIView):
@@ -30,7 +30,7 @@ class Register(APIView):
         user = User.objects.create_user(username=request.data["username"],
                                         password=request.data["password"])
         login(request, user)
-        return HttpResponseRedirect(redirect_to="/recommender")
+        return HttpResponseRedirect(redirect_to="/recommendations")
 
 
 class Logout(APIView):

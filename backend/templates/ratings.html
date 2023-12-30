@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+    <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
+<br/>
+<div class="flex flex-col min-h-full items-center justify-center px-6 lg:px-8">
+    <div class="rounded-xl bg-gray-100 mx-20" style="width: 90%;">
+        <div class="sm:mx-auto sm:w-full">
+            <div class="grid grid-cols-3 items-center justify-center text-center space-x-1 space-y-4">
+                {% for movie, poster_url, rating in movies %}
+                  <div class="text-center">
+                    <img class="block mx-auto my-auto h-96 w-64" src={{ poster_url }}>
+                         {{ movie }}
+                     <div class="rating rated">
+                         {% with ''|center:rating.value as range %}
+                            {% for _ in range %}
+                                ★
+                            {% endfor %}
+                         {% endwith %}
+                     </div>
+                     <a href="" class="delete justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400" data-movie="{{ movie.id }}" >Delete rating</a>
+                  </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+    <script>
+        $(".delete").on('click', function(e) {
+            let movie = $(this).data('movie');
+            $.ajax({
+                url: "/ratings/" + movie,
+                type: 'DELETE',
+                async: false,
+                headers: { "X-CSRFToken": "{{csrf_token}}" },
+                data: {'movie': movie},
+                success: function (d) {
+                    location.reload();
+                }
+            })
+});
+    </script>
+{% endblock %}

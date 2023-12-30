@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+    <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
+    <br/>
+<div class="flex flex-col min-h-full items-center justify-center px-6 lg:px-8">
+    <div class="rounded-xl bg-gray-100 mx-20" style="width: 90%;">
+        <div class="sm:mx-auto sm:w-full">
+            <div class="grid grid-cols-3 items-center justify-center text-center space-x-1 space-y-4">
+                {% for movie, poster_url in movies %}
+                     <div class="text-center">
+                    <img class="block mx-auto my-auto h-96 w-64" src={{ poster_url.poster_url }}>
+                     {{ movie }}
+                            <div class="rating rating2">
+                                <a href="" data-value="10" data-movie={{ movie.id }}>★</a>
+                                <a href="" data-value="9" data-movie={{ movie.id }}>★</a>
+                                <a href="" data-value="8" data-movie={{ movie.id }}>★</a>
+                                <a href="" data-value="7" data-movie={{ movie.id }}>★</a>
+                                <a href="" data-value="6" data-movie={{ movie.id }}>★</a>
+                                <a href="" data-value="5" data-movie={{ movie.id }}>★</a>
+                                <a href="" data-value="4" data-movie={{ movie.id }}>★</a>
+                                <a href="" data-value="3" data-movie={{ movie.id }}>★</a>
+                                <a href="" data-value="2" data-movie={{ movie.id }}>★</a>
+                                <a href="" data-value="1" data-movie={{ movie.id }}>★</a>
+                            </div>
+                     </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+    <script>
+        $(".rating a").on('click', function(e) {
+            let value = $(this).data('value');
+            let movie = $(this).data('movie');
+            $.ajax({
+                url: "/ratings/" + movie,
+                type: 'POST',
+                async: false,
+                headers: { "X-CSRFToken": "{{csrf_token}}" },
+                data: {'movie': movie, 'rating': value},
+                success: function (d) {
+                    location.reload();
+                }
+            })
+});
+    </script>
+{% endblock %}

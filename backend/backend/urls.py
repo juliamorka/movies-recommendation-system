@@ -20,8 +20,10 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     # path("", RedirectView.as_view(url="recommender/")),
+    path("", include("movies.urls")),
     path("admin/", admin.site.urls),
-    path("recommender/", include("recommender.urls")),
+    path("recommendations/", include("recommender.urls")),
     path("auth/", include("auth.urls")),
+    path("users/<str:username>", include("user.urls")),
     path("__reload__/", include("django_browser_reload.urls")),
 ]
