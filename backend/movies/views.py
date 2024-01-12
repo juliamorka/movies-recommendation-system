@@ -27,7 +27,12 @@ def index(request):
     if request.user.is_authenticated:
         user_ratings = Rating.objects.filter(user=request.user)
         rated_movies_ids = [user_rating.movie.id for user_rating in user_ratings]
-        movies = Movie.objects.all().exclude(id__in=rated_movies_ids)
+        movies = Movie.objects.all().exclude(id__in=rated_movies_ids).order_by('id')
+        if request.GET.get('q'):
+            search = request.GET.get('q')
+            movies = movies.filter(title__iregex=search)
+        else:
+            movies = movies[:12]
         movies_urls = movies.values("poster_url")
         return render(request, 'movies.html', {"movies": zip(movies, movies_urls)})
     return HttpResponseRedirect(redirect_to="/auth/login")
