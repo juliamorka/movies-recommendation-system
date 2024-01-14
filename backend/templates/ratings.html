@@ -5,8 +5,9 @@
 <br/>
 <div class="flex flex-col min-h-full items-center justify-center px-6 lg:px-8">
     <div class="rounded-xl bg-gray-100 mx-20" style="width: 90%;">
-        <div class="sm:mx-auto sm:w-full">
+        <div class="sm:mx-auto sm:w-full text-center">
         <br/>
+        <p class="text-5xl font-mono font-bold">Your ratings</p><br/>
             <div class="grid grid-cols-4 items-center justify-center text-center">
                 {% for movie, poster_url, rating in movies %}
                   <div class="text-center">
@@ -24,6 +25,12 @@
                 {% endfor %}
             </div>
             <br/>
+                <div class="text-center object-center">
+                <a href="?page={{ page|add:"-1" }}" class="justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400">Prev page</a>
+                <a href="?page={{ page|add:"1" }}" class="justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400">Next page</a>
+            </div>
+        <br/>
+        </div>
         </div>
     </div>
 </div>

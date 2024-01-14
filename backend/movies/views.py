@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Movie, Rating, Recommendation
+from .models import Movie, Rating, Recommendation, Profile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,14 +14,15 @@ from background_task import background
 from django.contrib.auth.models import User
 import time
 
-@background(queue="recommender")
-def calculate_recs(user_id, movie_id):
-    movie = Movie.objects.get(pk=movie_id)
-    user = User.objects.get(pk=user_id)
-    time.sleep(10)
-    Recommendation.objects.create(movie=movie, user=user)
+from movies.recommender_app import regenerate_recs_in_new_cluster
+from recommender.apps import recommender
 
-# Create your views here.
+
+@background(queue="recommender")
+def recalculate_recs_after_exhaustion(user_id):
+    profile_id = Profile.objects.get(user=user_id).imdb_id
+    regenerate_recs_in_new_cluster(profile_id, recommender)
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -42,11 +43,15 @@ class RatingsView(APIView):
 
     def post(self, request, movie_id):
         movie = Movie.objects.get(pk=movie_id)
-        calculate_recs(request.user.id, movie.id)
-        Rating.objects.create(value=request.data["rating"], movie=movie, user=request.user)
+        user = request.user
+        rec = Recommendation.objects.filter(user=user, movie=movie)
+        Rating.objects.create(value=request.data["rating"], movie=movie, user=user)
+        if rec.exists():
+            rec.delete()
+            if not Recommendation.objects.filter(user=user):
+                recalculate_recs_after_exhaustion(user.id)
         return HttpResponseRedirect(redirect_to="/movies")
         # return Response({}, status=status.HTTP_201_CREATED)
-        # return HttpResponse(f"{request.data['movie'], request.data['rating']}")
 
     def delete(self, request, movie_id):
         movie = Movie.objects.get(pk=movie_id)
@@ -57,17 +62,27 @@ class RatingsView(APIView):
         if request.user.is_authenticated:
             user_ratings = sorted(Rating.objects.filter(user=request.user), key=operator.attrgetter('movie.title'))
             rated_movies_ids = [user_rating.movie.id for user_rating in user_ratings]
+            if request.GET.get('page'):
+                page_num = int(request.GET.get('page'))
+            else:
+                page_num = 1
+            rated_movies_ids = rated_movies_ids[12 * page_num - 12:12 * page_num]
             movies = sorted(Movie.objects.filter(id__in=rated_movies_ids), key=operator.attrgetter('title'))
             movies_urls = [movie.poster_url for movie in movies]
-            return render(request, 'ratings.html', {"movies": zip(movies, movies_urls, user_ratings)})
+            return render(request, 'ratings.html',
+                          {"movies": zip(movies, movies_urls, user_ratings), "page": page_num})
         return HttpResponseRedirect(redirect_to="/auth/login")
+
 
 class RecommendationsView(APIView):
     def get(self, request):
+        user = request.user
         if request.user.is_authenticated:
             user_recs = Recommendation.objects.filter(user=request.user)
+            if not user_recs:
+                recalculate_recs_after_exhaustion(user.id)
             rec_movies_ids = [user_rec.movie.id for user_rec in user_recs]
             movies = sorted(Movie.objects.filter(id__in=rec_movies_ids), key=operator.attrgetter('title'))
             movies_urls = [movie.poster_url for movie in movies]
-            return render(request, 'movies.html', {"movies": zip(movies, movies_urls)})
+            return render(request, 'recommendations.html', {"movies": zip(movies, movies_urls)})
         return HttpResponseRedirect(redirect_to="/auth/login")

@@ -1,13 +1,59 @@
 {% extends 'base.html' %}
 {% block content %}
+    <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+    </script>
     <br/>
-<div class="flex flex-col min-h-full items-center justify-center px-6 lg:px-8">
+<div class="flex flex-col min-h-full items-center align-center justify-center px-6 lg:px-8">
     <div class="rounded-xl bg-gray-100 mx-20" style="width: 90%;">
-        <div class="sm:mx-auto sm:w-full">
-            <div class="grid grid-cols-3 items-center justify-center text-center space-x-1 space-y-4">
-
+        <div class="sm:mx-auto sm:w-full text-center">
+        <br/>
+        <p class="text-5xl font-mono font-bold">Recommended for you</p>
+        <br/><br/>
+            <div class="grid grid-cols-4 items-center justify-center text-center">
+{#            <br/>#}
+                {% for movie, poster_url in movies %}
+                     <div class="text-center">
+                    <img class="block mx-auto my-auto h-68 w-52 py-2" src={{ poster_url }}>
+                     {{ movie|truncatechars:26 }}
+{#                            <div class="rating rating2">#}
+{#                                <a href="" data-value="10" data-movie={{ movie.id }}>★</a>#}
+{#                                <a href="" data-value="9" data-movie={{ movie.id }}>★</a>#}
+{#                                <a href="" data-value="8" data-movie={{ movie.id }}>★</a>#}
+{#                                <a href="" data-value="7" data-movie={{ movie.id }}>★</a>#}
+{#                                <a href="" data-value="6" data-movie={{ movie.id }}>★</a>#}
+{#                                <a href="" data-value="5" data-movie={{ movie.id }}>★</a>#}
+{#                                <a href="" data-value="4" data-movie={{ movie.id }}>★</a>#}
+{#                                <a href="" data-value="3" data-movie={{ movie.id }}>★</a>#}
+{#                                <a href="" data-value="2" data-movie={{ movie.id }}>★</a>#}
+{#                                <a href="" data-value="1" data-movie={{ movie.id }}>★</a>#}
+{#                            </div>#}
+                     </div>
+                {% endfor %}
+            </div>
+            <br/>
+                <div class="text-center object-center">
+                <a href="?page={{ page|add:"-1" }}" class="justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400">Prev page</a>
+                <a href="?page={{ page|add:"1" }}" class="justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400">Next page</a>
+            </div>
+        <br/>
             </div>
         </div>
     </div>
 </div>
+        <script>
+        $(".rating a").on('click', function(e) {
+            let value = $(this).data('value');
+            let movie = $(this).data('movie');
+            $.ajax({
+                url: "/ratings/" + movie,
+                type: 'POST',
+                async: false,
+                headers: { "X-CSRFToken": "{{csrf_token}}" },
+                data: {'movie': movie, 'rating': value},
+                success: function (d) {
+                    location.reload();
+                }
+            })
+});
+    </script>
 {% endblock %}
