@@ -1,2 +1,2 @@
 # movies-recommendation-system
-ML-based movies recommendation system in a form of web application created with Django and React.
+Movies recommender system web app created with Django. Recommendation engine is utilizes association rule mining & clustering.
